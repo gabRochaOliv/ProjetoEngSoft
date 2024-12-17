@@ -17,16 +17,26 @@ public class LivroService {
         return livroRepository.findAll();
     }
 
-    public Livro salvar(Livro livro) {
-        return livroRepository.save(livro);
+    public Livro buscarPorId(Long id) {
+        return livroRepository.findById(id).orElse(null);
+    }
+
+    public void salvar(Livro livro) {
+        livroRepository.save(livro);
     }
 
     public void deletar(Long id) {
         livroRepository.deleteById(id);
     }
 
-    public Livro buscarPorId(Long id) {
-        return livroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado com o ID: " + id));
+    // Método para listar apenas livros disponíveis
+    public List<Livro> listarDisponiveis() {
+        return livroRepository.findAll().stream()
+                .filter(livro -> livro.isAtivo() && livro.isDisponivel())
+                .toList();
+    }
+
+    public List<Livro> buscarPorTitulo(String titulo) {
+        return livroRepository.findByTituloContainingIgnoreCase(titulo);
     }
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Livros</title>
+    <title>Cadastro de Alunos</title>
     <style>
         /* Reset básico */
         * {
@@ -19,6 +19,7 @@
         /* Navbar */
         .navbar {
             background-color: #4CAF50;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -30,6 +31,7 @@
             color: white;
             text-decoration: none;
             padding: 10px 15px;
+            font-size: 16px;
             transition: background-color 0.3s;
         }
 
@@ -43,7 +45,7 @@
             font-size: 20px;
         }
 
-        /* Conteúdo Principal */
+        /* Conteúdo principal */
         h1, h2 {
             color: #4CAF50;
             margin-bottom: 20px;
@@ -56,7 +58,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 30px;
             width: 100%;
-            max-width: 900px;
+            max-width: 600px;
             margin: 20px auto;
         }
 
@@ -123,15 +125,6 @@
         tr:hover {
             background-color: #f1f1f1;
         }
-
-        .actions button {
-            background-color: #e74c3c;
-            transition: background-color 0.3s;
-        }
-
-        .actions button:hover {
-            background-color: #c0392b;
-        }
     </style>
 </head>
 <body>
@@ -139,54 +132,46 @@
     <div class="navbar">
         <div class="logo">Sistema de Biblioteca</div>
         <div>
-            <a th:href="@{/alunos}">Alunos</a>
-            <a th:href="@{/emprestimos}">Empréstimos</a>
-            <a th:href="@{/livros}">Livros</a>
+            <a href="http://localhost:8080/alunos">Alunos</a>
+            <a href="http://localhost:8080/emprestimos">Empréstimos</a>
+            <a href="http://localhost:8080/livros">Livros</a>
         </div>
     </div>
 
     <!-- Conteúdo Principal -->
     <div class="container">
-        <h1>Cadastro de Livros</h1>
-        
-        <!-- Formulário para cadastro de livros -->
-        <form th:action="@{/livros}" method="post">
-            <label for="titulo">Título:</label>
-            <input type="text" id="titulo" name="titulo" placeholder="Digite o título do livro" required>
+        <h1>Cadastro de Alunos</h1>
 
-            <label for="autor">Autor:</label>
-            <input type="text" id="autor" name="autor" placeholder="Digite o autor do livro" required>
+        <!-- Formulário para cadastro de alunos -->
+        <form action="#" th:action="@{/alunos}" method="post">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" placeholder="Digite o nome do aluno" required>
 
-            <label for="isbn">ISBN:</label>
-            <input type="text" id="isbn" name="isbn" placeholder="Digite o ISBN do livro" required>
+            <label for="matricula">Matrícula:</label>
+            <input type="text" id="matricula" name="matricula" placeholder="Digite a matrícula" required>
 
-            <button type="submit" aria-label="Salvar Livro">Salvar</button>
+            <button type="submit">Salvar</button>
         </form>
+    </div>
 
-        <h2>Lista de Livros</h2>
-        <!-- Tabela com livros cadastrados -->
+    <br>
+
+    <!-- Lista de Alunos -->
+    <h2>Lista de Alunos</h2>
+    <div class="container">
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Título</th>
-                    <th>Autor</th>
-                    <th>ISBN</th>
-                    <th>Ações</th>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="livro : ${livros}">
-                    <td th:text="${livro.id}"></td>
-                    <td th:text="${livro.titulo}"></td>
-                    <td th:text="${livro.autor}"></td>
-                    <td th:text="${livro.isbn}"></td>
-                    <td class="actions">
-                        <!-- Botão de Exclusão -->
-                        <form th:action="@{/livros/excluir/{id}(id=${livro.id})}" method="post">
-                            <button type="submit" onclick="return confirm('Deseja realmente excluir este livro?');" aria-label="Excluir Livro">Excluir</button>
-                        </form>
-                    </td>
+                <tr th:each="aluno : ${alunos}">
+                    <td th:text="${aluno.id}"></td>
+                    <td th:text="${aluno.nome}"></td>
+                    <td th:text="${aluno.matricula}"></td>
                 </tr>
             </tbody>
         </table>

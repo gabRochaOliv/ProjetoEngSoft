@@ -1,17 +1,16 @@
 package com.trabfinal.controller;
 
-import com.trabfinal.model.Emprestimo;
 import com.trabfinal.model.Livro;
 import com.trabfinal.model.Aluno;
 import com.trabfinal.service.EmprestimoService;
 import com.trabfinal.service.LivroService;
 import com.trabfinal.service.AlunoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/emprestimos")
 public class EmprestimoController {
 
@@ -24,23 +23,35 @@ public class EmprestimoController {
     @Autowired
     private AlunoService alunoService;
 
-    // Endpoint para listar todos os empréstimos
+    // Página de empréstimos
     @GetMapping
-    public List<Emprestimo> listarTodos() {
-        return emprestimoService.listarTodos();
+    public String listarEmprestimos(Model model) {
+        model.addAttribute("emprestimos", emprestimoService.listarTodos());
+        model.addAttribute("alunos", alunoService.listarTodos());
+        model.addAttribute("livrosDisponiveis", livroService.listarDisponiveis());
+        return "emprestimos";
     }
 
-    // Endpoint para realizar um empréstimo
-    @PostMapping("/{livroId}/{alunoId}")
-    public Emprestimo realizarEmprestimo(@PathVariable Long livroId, @PathVariable Long alunoId) {
+    // Realizar empréstimo
+    @PostMapping
+    public String realizarEmprestimo(@RequestParam Long livroId, @RequestParam Long alunoId, Model model) {
         Livro livro = livroService.buscarPorId(livroId);
         Aluno aluno = alunoService.buscarPorId(alunoId);
-        return emprestimoService.realizarEmprestimo(livro, aluno);
+
+        String erro = emprestimoService.realizarEmprestimo(livro, aluno);
+
+        if (erro != null) {
+            model.addAttribute("erro", erro);
+            return listarEmprestimos(model); // Retorna à página com erro
+        }
+
+        return "redirect:/emprestimos";
     }
 
-    // Endpoint para devolver um empréstimo
-    @PutMapping("/devolver/{emprestimoId}")
-    public Emprestimo devolverEmprestimo(@PathVariable Long emprestimoId) {
-        return emprestimoService.devolverEmprestimo(emprestimoId);
+    // Devolver livro
+    @PostMapping("/devolver/{id}")
+    public String devolverEmprestimo(@PathVariable Long id) {
+        emprestimoService.devolverEmprestimo(id);
+        return "redirect:/emprestimos";
     }
 }

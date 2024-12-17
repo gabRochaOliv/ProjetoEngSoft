@@ -18,9 +18,21 @@ public class Emprestimo {
 
     private LocalDate dataEmprestimo;
     private LocalDate dataDevolucao;
-    private boolean devolvido;
 
-    // Getters e Setters
+    @Column(nullable = false)
+    private boolean devolvido = false; // Definindo padrão como 'false'
+
+    private LocalDate dataPrazoMaximo;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.dataPrazoMaximo == null) {
+            this.dataPrazoMaximo = this.dataEmprestimo != null
+                    ? this.dataEmprestimo.plusDays(3)
+                    : LocalDate.now().plusDays(3);
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -67,5 +79,13 @@ public class Emprestimo {
 
     public void setDevolvido(boolean devolvido) {
         this.devolvido = devolvido;
+    }
+
+    public LocalDate getDataPrazoMaximo() {
+        return dataPrazoMaximo;
+    }
+
+    public void setDataPrazoMaximo(LocalDate dataPrazoMaximo) {
+        this.dataPrazoMaximo = dataPrazoMaximo;
     }
 }

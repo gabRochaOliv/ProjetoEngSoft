@@ -10,31 +10,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/livros")
+@RequestMapping("/livros") // Define um prefixo de rota
 public class LivroController {
 
     @Autowired
     private LivroService livroService;
 
-    // Endpoint para exibir a página de gerenciamento de livros
+    // Exibir página de cadastro e listar livros
     @GetMapping
     public String listarLivros(Model model) {
         List<Livro> livros = livroService.listarTodos();
         model.addAttribute("livros", livros);
-        return "livros";
+        return "livros"; // Renderiza livros.html
     }
 
-    // Endpoint para salvar um livro
+    // Processar cadastro de livros
     @PostMapping
     public String salvarLivro(@ModelAttribute Livro livro) {
         livroService.salvar(livro);
         return "redirect:/livros";
     }
 
-    // Endpoint para excluir um livro
-    @PostMapping("/delete")
-    public String deletarLivro(@RequestParam Long id) {
+    // Processar exclusão de livros
+    @PostMapping("/excluir/{id}")
+    public String excluirLivro(@PathVariable Long id) {
         livroService.deletar(id);
         return "redirect:/livros";
+    }
+
+    // Buscar livros por título
+    @GetMapping("/buscar")
+    @ResponseBody // Retorna JSON diretamente
+    public List<Livro> buscarPorTitulo(@RequestParam String titulo) {
+        return livroService.buscarPorTitulo(titulo);
     }
 }

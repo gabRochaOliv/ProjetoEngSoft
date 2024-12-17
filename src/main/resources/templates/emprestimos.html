@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Empréstimos</title>
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #4CAF50;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #45a049;
+            border-radius: 5px;
+        }
+
+        .navbar .logo {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, ul {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        li:hover {
+            background-color: #f2f2f2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .devolvido {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">Sistema de Biblioteca</div>
+        <div>
+            <a href="/alunos">Alunos</a>
+            <a href="/emprestimos">Empréstimos</a>
+            <a href="/livros">Livros</a>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <h1>Gerenciamento de Empréstimos</h1>
+
+        <!-- Exibe mensagem de erro se existir -->
+        <div th:if="${erro}" class="error-message" th:text="${erro}"></div>
+
+        <!-- Formulário para realizar empréstimos -->
+        <form action="#" th:action="@{/emprestimos}" method="post">
+            <label for="aluno">Aluno:</label>
+            <input type="text" id="aluno" placeholder="Digite o nome do aluno..." autocomplete="off">
+            <ul id="alunoLista"></ul>
+            <input type="hidden" id="alunoId" name="alunoId">
+
+            <label for="livro">Livro:</label>
+            <input type="text" id="livro" placeholder="Digite o título do livro..." autocomplete="off">
+            <ul id="livroLista"></ul>
+            <input type="hidden" id="livroId" name="livroId">
+
+            <button type="submit">Emprestar Livro</button>
+        </form>
+
+        <!-- Tabela de empréstimos -->
+        <h2>Livros Emprestados</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aluno</th>
+                    <th>Livro</th>
+                    <th>Data Empréstimo</th>
+                    <th>Data Devolução</th>
+                    <th>Prazo Máximo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="emprestimo : ${emprestimos}">
+                    <td th:text="${emprestimo.aluno.nome}"></td>
+                    <td th:text="${emprestimo.livro.titulo}"></td>
+                    <td th:text="${emprestimo.dataEmprestimo}"></td>
+                    <td th:text="${emprestimo.dataDevolucao != null ? emprestimo.dataDevolucao : '---'}"></td>
+                    <td th:text="${emprestimo.dataPrazoMaximo}"></td>
+                    <td>
+                        <div th:if="${!emprestimo.devolvido}">
+                            <form action="#" th:action="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" method="post">
+                                <button type="submit">Devolver</button>
+                            </form>
+                        </div>
+                        <div th:if="${emprestimo.devolvido}" class="devolvido">
+                            Devolvido
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função para buscar alunos dinamicamente
+        document.getElementById("aluno").addEventListener("input", function() {
+            let nome = this.value;
+            fetch(`/alunos/buscar?nome=${nome}`)
+                .then(response => response.json())
+                .then(data => {
+                    let lista = document.getElementById("alunoLista");
+                    lista.innerHTML = "";
+                    if (data.length === 0) {
+                        lista.innerHTML = "<li class='error'>Nenhum aluno encontrado</li>";
+                    } else {
+                        data.forEach(aluno => {
+                            let li = document.createElement("li");
+                            li.textContent = aluno.nome;
+                            li.onclick = () => {
+                                document.getElementById("aluno").value = aluno.nome;
+                                document.getElementById("alunoId").value = aluno.id;
+                                lista.innerHTML = "";
+                            };
+                            lista.appendChild(li);
+                        });
+                    }
+                });
+        });
+
+        // Função para buscar livros dinamicamente
+        document.getElementById("livro").addEventListener("input", function() {
+            let titulo = this.value;
+            fetch(`/livros/buscar?titulo=${titulo}`)
+                .then(response => response.json())
+                .then(data => {
+                    let lista = document.getElementById("livroLista");
+                    lista.innerHTML = "";
+                    if (data.length === 0) {
+                        lista.innerHTML = "<li class='error'>Nenhum livro encontrado</li>";
+                    } else {
+                        data.forEach(livro => {
+                            let li = document.createElement("li");
+                            li.textContent = livro.titulo;
+                            li.onclick = () => {
+                                document.getElementById("livro").value = livro.titulo;
+                                document.getElementById("livroId").value = livro.id;
+                                lista.innerHTML = "";
+                            };
+                            lista.appendChild(li);
+                        });
+                    }
+                });
+        });
+    </script>
+</body>
+</html>

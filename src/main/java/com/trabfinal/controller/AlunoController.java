@@ -3,32 +3,38 @@ package com.trabfinal.controller;
 import com.trabfinal.model.Aluno;
 import com.trabfinal.service.AlunoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/alunos")
+@Controller
+@RequestMapping("/alunos") // Define um prefixo de rota
 public class AlunoController {
 
     @Autowired
     private AlunoService alunoService;
 
-    // Endpoint para listar todos os alunos
+    // Exibir página de cadastro e listar alunos
     @GetMapping
-    public List<Aluno> listarTodos() {
-        return alunoService.listarTodos();
+    public String listarAlunos(Model model) {
+        List<Aluno> alunos = alunoService.listarTodos();
+        model.addAttribute("alunos", alunos);
+        return "alunos"; // Renderiza alunos.html
     }
 
-    // Endpoint para salvar um aluno
+    // Processar cadastro de alunos
     @PostMapping
-    public Aluno salvar(@RequestBody Aluno aluno) {
-        return alunoService.salvar(aluno);
+    public String salvarAluno(@ModelAttribute Aluno aluno) {
+        alunoService.salvar(aluno);
+        return "redirect:/alunos";
     }
 
-    // Endpoint para deletar um aluno por ID
-    @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
-        alunoService.deletar(id);
+    // Buscar alunos por nome
+    @GetMapping("/buscar")
+    @ResponseBody // Retorna JSON diretamente
+    public List<Aluno> buscarPorNome(@RequestParam String nome) {
+        return alunoService.buscarPorNome(nome);
     }
 }

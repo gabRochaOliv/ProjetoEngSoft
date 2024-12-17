@@ -17,16 +17,19 @@ public class AlunoService {
         return alunoRepository.findAll();
     }
 
-    public Aluno salvar(Aluno aluno) {
-        return alunoRepository.save(aluno);
+    public Aluno buscarPorId(Long id) {
+        return alunoRepository.findById(id).orElse(null);
+    }
+
+    public void salvar(Aluno aluno) {
+        alunoRepository.save(aluno);
     }
 
     public void deletar(Long id) {
         alunoRepository.deleteById(id);
     }
 
-    public Aluno buscarPorId(Long id) {
-        return alunoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado com o ID: " + id));
+    public List<Aluno> buscarPorNome(String nome) {
+        return alunoRepository.findByNomeContainingIgnoreCase(nome);
     }
 }
